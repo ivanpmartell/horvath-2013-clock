@@ -1,0 +1,80 @@
+import sys
+import math
+import python
+from soft import SampleSoft
+
+adult_age = 20 #Humans
+directory = sys.argv[1]
+geo_accession = sys.argv[2]
+
+pydef get_all_files_in_directory(directory: str, accession: str) -> list[str]:
+    import os
+    full_dir = os.path.join(directory, accession)
+    files = []
+    for item in os.listdir(full_dir):
+        item_path = os.path.join(full_dir, item)
+        if os.path.isfile(item_path):
+            files.append(item_path)
+    return files
+
+pydef get_first_file_in_directories(base_dir: str) -> list[str]:
+    import os
+    files = []
+    for item in os.listdir(base_dir):
+        item_path = os.path.join(base_dir, item)
+        if os.path.isdir(item_path):
+            file_path = os.path.join (item_path, os.listdir(item_path)[0])
+            files.append(file_path)
+    return files
+
+def F(age: float):
+    if age <= adult_age:
+        return math.log(age+1.)-math.log(adult_age+1.)
+    else:
+        return (age-adult_age)/(adult_age+1.)
+
+def _list_str(lst: list[float]) -> str:
+    n = len(lst)
+    if n == 0:
+        return ""
+    else:
+        y = [str(lst[0])]
+        for i in range(1, n):
+            y.append(",")
+            y.append(str(lst[i]))
+        y.append("\n")
+        return str.cat(y)
+
+#Get ids of all accession samples
+ids = set[str]()
+for sample in get_first_file_in_directories(directory):
+    soft_data = SampleSoft()
+    curr_ids = set[str]()
+    soft_data.get_ids(sample, curr_ids)
+    if len(ids) != 0:
+        ids = ids.intersection(curr_ids)
+    else:
+        ids = curr_ids
+id_dict = dict[str, int]()
+for num, sid in enumerate(ids):
+    id_dict[sid] = num
+#Free up memory
+ids = set[str]()
+#For each file in folder of accession (all samples)
+with open("output.csv", 'w') as csv_file:
+    with open("output.labels", 'w') as out_file:
+        for sample in get_all_files_in_directory(directory, geo_accession):
+            soft_data = SampleSoft()
+            for s_acc in soft_data.load_file(sample):
+                data, label = soft_data.get_data(id_dict, s_acc)
+                out_file.write(f"{label},{F(label)}\n")
+                csv_file.write(_list_str(data))
+
+
+#Create sample_soft data structure (dictionary for !sample properties)
+
+#Get age for y-label and numpy the beta values
+
+#Input the data into elasticnet
+
+#Get non-zero coefficients
