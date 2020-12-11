@@ -61,8 +61,8 @@ for num, sid in enumerate(ids):
 #Free up memory
 ids = set[str]()
 #For each file in folder of accession (all samples)
-with open("output.csv", 'w') as csv_file:
-    with open("output.labels", 'w') as out_file:
+with open("valid.csv", 'w') as csv_file:
+    with open("valid.labels", 'w') as out_file:
         for sample in get_all_files_in_directory(directory, geo_accession):
             soft_data = SampleSoft()
             for s_acc in soft_data.load_file(sample):

@@ -21,7 +21,7 @@ costs_enet = []
 
 intercept = np.sum(y_train - np.dot(X_train_norm, beta))/N
 #Let's iterate for 500 times to see after how many iterations it is reaching convergence
-for i in range(80000):
+for i in range(200000):
     Yhat = X_train_norm.dot(beta)
     delta = Yhat - y_train
     beta = beta - (learning_rate *(X_train_norm.T.dot(delta) + l1*np.sign(beta) + l2*2*beta))
