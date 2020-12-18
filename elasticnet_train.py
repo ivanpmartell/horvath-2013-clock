@@ -1,12 +1,16 @@
+import sys
 import numpy as np
 
+input_file = sys.argv[1]
+input_labels = sys.argv[2]
+
 y_list = []
-with open("output.labels") as lbl_file:
+with open(input_labels) as lbl_file:
     for line in lbl_file:
         age, Fage = line.rstrip().split(',')
         y_list.append(Fage)
 y_train = np.array(y_list, dtype=np.float)
-X_train_norm = np.genfromtxt('output.csv', delimiter=',')
+X_train_norm = np.genfromtxt(input_file, delimiter=',')
 #Dimensions of the normalized data
 N = X_train_norm.shape[0]
 D = X_train_norm.shape[1]
@@ -20,8 +24,7 @@ l2 = 0.02255706
 costs_enet = []
 
 intercept = np.sum(y_train - np.dot(X_train_norm, beta))/N
-#Let's iterate for 500 times to see after how many iterations it is reaching convergence
-for i in range(200000):
+for i in range(1000000):
     Yhat = X_train_norm.dot(beta)
     delta = Yhat - y_train
     beta = beta - (learning_rate *(X_train_norm.T.dot(delta) + l1*np.sign(beta) + l2*2*beta))

@@ -1,7 +1,7 @@
 import sys
 import math
 import python
-from soft import SampleSoft
+from soft import SampleSoft, get_ids
 
 adult_age = 20 #Humans
 directory = sys.argv[1]
@@ -48,9 +48,8 @@ def _list_str(lst: list[float]) -> str:
 #Get ids of all accession samples
 ids = set[str]()
 for sample in get_first_file_in_directories(directory):
-    soft_data = SampleSoft()
     curr_ids = set[str]()
-    soft_data.get_ids(sample, curr_ids)
+    get_ids(sample, curr_ids)
     if len(ids) != 0:
         ids = ids.intersection(curr_ids)
     else:
@@ -59,17 +58,31 @@ id_dict = dict[str, int]()
 for num, sid in enumerate(ids):
     id_dict[sid] = num
 #Free up memory
+with open("methylation_ids.txt", 'w') as methylids_file:
+    for k, v in id_dict.items():
+        methylids_file.write(f"{k},{v}\n")
 ids = set[str]()
 #For each file in folder of accession (all samples)
-with open("valid.csv", 'w') as csv_file:
-    with open("valid.labels", 'w') as out_file:
-        for sample in get_all_files_in_directory(directory, geo_accession):
-            soft_data = SampleSoft()
-            for s_acc in soft_data.load_file(sample):
-                data, label = soft_data.get_data(id_dict, s_acc)
-                out_file.write(f"{label},{F(label)}\n")
-                csv_file.write(_list_str(data))
-
+csv_file = open(f"{geo_accession}_male.csv", 'w')
+out_file = open(f"{geo_accession}_male.labels", 'w')
+csv2_file = open(f"{geo_accession}_female.csv", 'w')
+out2_file = open(f"{geo_accession}_female.labels", 'w')
+for sample in get_all_files_in_directory(directory, geo_accession):
+    soft_data = SampleSoft()
+    for s_acc in soft_data.load_file(sample):
+        data, label, gender = soft_data.get_data(id_dict, s_acc)
+        if gender == 'M':
+            out_file.write(f"{label},{F(label)}\n")
+            csv_file.write(_list_str(data))
+        elif gender == 'F':
+            out2_file.write(f"{label},{F(label)}\n")
+            csv2_file.write(_list_str(data))
+        else:
+            print("UNKNOWN GENDER")
+csv_file.close()
+out_file.close()
+csv2_file.close()
+out2_file.close()
 
 #Create sample_soft data structure (dictionary for !sample properties)
 

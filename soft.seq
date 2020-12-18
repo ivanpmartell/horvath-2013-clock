@@ -1,3 +1,21 @@
+def get_ids(file_path: str, ids: set[str]):
+    with open(file_path) as sample:
+        reading_table = False
+        table_line = 0
+        for line in sample:
+            if line.startswith('!sample_table_begin'):
+                reading_table = True
+                table_line = 0
+            elif line.startswith('!sample_table_end'):
+                reading_table = False
+            elif reading_table:
+                table_line += 1
+                if table_line == 1:
+                    continue
+                k, _ = line.split('\t')
+                key = k.strip()
+                ids.add(key)
+
 class SampleSoft:
     accessions: dict[str, dict[str, dict[str, str]]]
 
@@ -58,33 +76,13 @@ class SampleSoft:
                         self.accessions[current_acc]['table'][key] = value
                     table_line += 1
 
-    def get_ids(self: SampleSoft, file_path: str, ids: set[str]):
-        with open(file_path) as sample:
-            reading_table = False
-            table_line = 0
-            for line in sample:
-                if line.startswith('!sample_table_begin'):
-                    reading_table = True
-                    table_line = 0
-                elif line.startswith('!sample_table_end'):
-                    reading_table = False
-                elif reading_table:
-                    table_line += 1
-                    if table_line == 1:
-                        continue
-                    k, _ = line.split('\t')
-                    key = k.strip()
-                    ids.add(key)
-
-    def get_data(self: SampleSoft, id_dict: dict[str, int], geo_accession: str) -> tuple[list[float], float]:
+    def get_data(self: SampleSoft, id_dict: dict[str, int], geo_accession: str) -> tuple[list[float], float, str]:
         label = float(self.accessions[geo_accession]['characteristics_ch1']['age'])
+        gender = self.accessions[geo_accession]['characteristics_ch1']['gender']
         arr = [0.0 for i in range(len(id_dict))]
-        for k, v in self.accessions[geo_accession]['table'].items():
-            try:
-                arr[id_dict[k]] = float(v)
-            except KeyError:
-                continue
-        return arr, label
+        for k, _ in id_dict.items():
+            arr[id_dict[k]] = float(self.accessions[geo_accession]['table'][k])
+        return arr, label, gender
 
 #print(soft.accessions['GSM989827']['table'])
 #print(soft.accessions['GSM989827']['characteristics_ch1']['age'])
