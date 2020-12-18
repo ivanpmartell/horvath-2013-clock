@@ -23,8 +23,8 @@ l1 = 0.5
 l2 = 0.02255706
 costs_enet = []
 
-intercept = np.sum(y_train - np.dot(X_train_norm, beta))/N
-for i in range(1000000):
+#TODO: Improve elasticnet training algo to do batches of 10
+for i in range(500000):
     Yhat = X_train_norm.dot(beta)
     delta = Yhat - y_train
     beta = beta - (learning_rate *(X_train_norm.T.dot(delta) + l1*np.sign(beta) + l2*2*beta))

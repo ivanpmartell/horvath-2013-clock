@@ -21,9 +21,31 @@ with open("methylation_ids.txt") as ids_file:
         inv_id_dict[id_val] = cpg_id
 
 non_zeros = np.nonzero(beta_rounded)[0]
+
+important_vars = {}
+max_beta = 0
+min_beta = 9999
 with open("important_variables.txt", 'w') as vars_file:
     for i in range(len(non_zeros)):
+        if beta[non_zeros[i]] < min_beta:
+            min_beta = beta[non_zeros[i]]
+        if beta[non_zeros[i]] > max_beta:
+            max_beta = beta[non_zeros[i]]
+        important_vars[inv_id_dict[non_zeros[i]]] = beta[non_zeros[i]]
         vars_file.write(f"{inv_id_dict[non_zeros[i]]},{beta_rounded[non_zeros[i]]}\n")
+
+with open("important_vars.bed", 'w') as important_file:
+    important_file.write(f"chrom\tchromStart\tchromEnd\tname\tscore\tstrand\n")
+    with open("data/cgids_to_locations.csv") as loc_file:
+        #Ignore first line
+        next(loc_file)
+        for line in loc_file:
+            split_line = line.rstrip().split(',')
+            try:
+                score = int((important_vars[split_line[4]] - min_beta) / (max_beta - min_beta) * 1000)
+                important_file.write(f"{split_line[1]}\t{split_line[2]}\t{split_line[3]}\t{split_line[4]}\t{score}\t{split_line[6]}\n")
+            except:
+                continue
 
 #np.save('enet_important_betas.npy', beta_rounded)
 #np.save('enet__important_intercept.npy', intercept_rounded)

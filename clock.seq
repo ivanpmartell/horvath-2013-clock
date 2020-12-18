@@ -1,7 +1,7 @@
 import sys
 import math
 import python
-from soft import SampleSoft, get_ids
+from soft import SampleSoft
 
 adult_age = 20 #Humans
 directory = sys.argv[1]
@@ -15,16 +15,6 @@ pydef get_all_files_in_directory(directory: str, accession: str) -> list[str]:
         item_path = os.path.join(full_dir, item)
         if os.path.isfile(item_path):
             files.append(item_path)
-    return files
-
-pydef get_first_file_in_directories(base_dir: str) -> list[str]:
-    import os
-    files = []
-    for item in os.listdir(base_dir):
-        item_path = os.path.join(base_dir, item)
-        if os.path.isdir(item_path):
-            file_path = os.path.join (item_path, os.listdir(item_path)[0])
-            files.append(file_path)
     return files
 
 def F(age: float):
@@ -45,23 +35,12 @@ def _list_str(lst: list[float]) -> str:
         y.append("\n")
         return str.cat(y)
 
-#Get ids of all accession samples
-ids = set[str]()
-for sample in get_first_file_in_directories(directory):
-    curr_ids = set[str]()
-    get_ids(sample, curr_ids)
-    if len(ids) != 0:
-        ids = ids.intersection(curr_ids)
-    else:
-        ids = curr_ids
 id_dict = dict[str, int]()
-for num, sid in enumerate(ids):
-    id_dict[sid] = num
-#Free up memory
-with open("methylation_ids.txt", 'w') as methylids_file:
-    for k, v in id_dict.items():
-        methylids_file.write(f"{k},{v}\n")
-ids = set[str]()
+with open("methylation_ids.txt") as methylids_file:
+    for line in methylids_file:
+        cgid, arrid = line.rstrip().split(',')
+        id_dict[cgid] = itn(arrid)
+
 #For each file in folder of accession (all samples)
 csv_file = open(f"{geo_accession}_male.csv", 'w')
 out_file = open(f"{geo_accession}_male.labels", 'w')
@@ -71,14 +50,14 @@ for sample in get_all_files_in_directory(directory, geo_accession):
     soft_data = SampleSoft()
     for s_acc in soft_data.load_file(sample):
         data, label, gender = soft_data.get_data(id_dict, s_acc)
-        if gender == 'M':
+        if gender.lower().startswith('m'):
             out_file.write(f"{label},{F(label)}\n")
             csv_file.write(_list_str(data))
-        elif gender == 'F':
+        elif gender.lower().startswith('f'):
             out2_file.write(f"{label},{F(label)}\n")
             csv2_file.write(_list_str(data))
         else:
-            print("UNKNOWN GENDER")
+            print(f"WARNING: UNKNOWN GENDER {gender}")
 csv_file.close()
 out_file.close()
 csv2_file.close()

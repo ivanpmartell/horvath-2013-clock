@@ -1,0 +1,1 @@
+./bedtools closest -a repos/horvath-2013-clock/important_vars.bed -b repos/horvath-2013-clock/data/genes.bed -s -D b -iu > repos/horvath-2013-clock/important_genes.bed

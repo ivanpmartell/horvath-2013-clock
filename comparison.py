@@ -1,0 +1,16 @@
+import math
+adult_age = 20 #Humans
+
+def inverseF(age: float):
+    if age < 0:
+        return (1. + adult_age)*math.exp(age) - 1.
+    else:
+        return (1. + adult_age)*age + adult_age
+
+with open("valid.labels") as lbl_file:
+    for line in lbl_file:
+        age_str, Fage_str = line.rstrip().split(',')
+        age = float(age_str)
+        Fage = float(Fage_str)
+        print(f"{inverseF(Fage)} - {age}")
+
