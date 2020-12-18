@@ -67,7 +67,14 @@ class GEOquery:
     def _invalid_arguments(self: GEOquery):
         raise ValueError("Invalid query arguments")
 
-geo_accession = sys.argv[1]
-destination = sys.argv[2]
-geo = GEOquery(geo_accession, destination)
-geo.load_samples() |> geo._sample_query()
+destination = sys.argv[1]
+
+acc_list = list[str]()
+with open('data/accessions.txt') as acc_file:
+    for line in acc_file:
+        acc = line.rstrip()
+        acc_list.append(acc)
+
+for geo_accession in acc_list:
+    geo = GEOquery(geo_accession, destination)
+    geo.load_samples() |> geo._sample_query()
