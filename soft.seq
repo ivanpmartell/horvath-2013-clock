@@ -70,15 +70,23 @@ class SampleSoft:
                             self.accessions[current_acc]['table'] = dict[str, str]()
                     else:
                         #Save table data
-                        k, v = line.split('\t')
+                        line_split = line.split('\t')
+                        k = line_split[0]
+                        v = line_split[1]
                         key = k.strip()
                         value = v.strip()
+                        if value == 'null':
+                            value = '0'
                         self.accessions[current_acc]['table'][key] = value
                     table_line += 1
 
     def get_data(self: SampleSoft, id_dict: dict[str, int], geo_accession: str) -> tuple[list[float], float, str]:
-        label = float(self.accessions[geo_accession]['characteristics_ch1']['age'])
-        gender = self.accessions[geo_accession]['characteristics_ch1']['gender']
+        label = -1.
+        try:
+            label = float(self.accessions[geo_accession]['characteristics_ch1']['age'].split(' ')[0])
+        except:
+            print("WARNING: MISSING AGE")
+        gender = self.accessions[geo_accession]['characteristics_ch1']['gender'].lower()
         arr = [0.0 for i in range(len(id_dict))]
         for k, _ in id_dict.items():
             arr[id_dict[k]] = float(self.accessions[geo_accession]['table'][k])

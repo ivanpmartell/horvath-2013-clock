@@ -4,7 +4,7 @@ import python
 from soft import SampleSoft
 
 adult_age = 20 #Humans
-directory = sys.argv[1]
+dir = sys.argv[1]
 geo_accession = sys.argv[2]
 
 pydef get_all_files_in_directory(directory: str, accession: str) -> list[str]:
@@ -16,6 +16,16 @@ pydef get_all_files_in_directory(directory: str, accession: str) -> list[str]:
         if os.path.isfile(item_path):
             files.append(item_path)
     return files
+
+#Use this if all metadata is formatted the same
+pydef get_all_folders_in_directory(directory: str) -> list[str]:
+    import os
+    folders = []
+    for item in os.listdir(directory):
+        item_path = os.path.join(directory, item)
+        if os.path.isdir(item_path):
+            folders.append(item)
+    return folders
 
 def F(age: float):
     if age <= adult_age:
@@ -36,25 +46,29 @@ def _list_str(lst: list[float]) -> str:
         return str.cat(y)
 
 id_dict = dict[str, int]()
-with open("methylation_ids.txt") as methylids_file:
+with open("data/training/methylation_ids.txt") as methylids_file:
     for line in methylids_file:
         cgid, arrid = line.rstrip().split(',')
-        id_dict[cgid] = itn(arrid)
+        id_dict[cgid] = int(arrid)
 
-#For each file in folder of accession (all samples)
-csv_file = open(f"{geo_accession}_male.csv", 'w')
-out_file = open(f"{geo_accession}_male.labels", 'w')
-csv2_file = open(f"{geo_accession}_female.csv", 'w')
-out2_file = open(f"{geo_accession}_female.labels", 'w')
-for sample in get_all_files_in_directory(directory, geo_accession):
+#for geo_accession in get_all_folders_in_directory(dir):
+csv_file = open(f"data/training/{geo_accession}_male.csv", 'w')
+out_file = open(f"data/training/{geo_accession}_male.labels", 'w')
+csv2_file = open(f"data/training/{geo_accession}_female.csv", 'w')
+out2_file = open(f"data/training/{geo_accession}_female.labels", 'w')
+for sample in get_all_files_in_directory(dir, geo_accession):
+    print(f"Processing file: {sample}")
     soft_data = SampleSoft()
     for s_acc in soft_data.load_file(sample):
-        data, label, gender = soft_data.get_data(id_dict, s_acc)
+        data, age, gender = soft_data.get_data(id_dict, s_acc)
+        if age == -1:
+            print("Skipping...")
+            continue
         if gender.lower().startswith('m'):
-            out_file.write(f"{label},{F(label)}\n")
+            out_file.write(f"{age},{F(age)}\n")
             csv_file.write(_list_str(data))
         elif gender.lower().startswith('f'):
-            out2_file.write(f"{label},{F(label)}\n")
+            out2_file.write(f"{age},{F(age)}\n")
             csv2_file.write(_list_str(data))
         else:
             print(f"WARNING: UNKNOWN GENDER {gender}")
@@ -62,11 +76,3 @@ csv_file.close()
 out_file.close()
 csv2_file.close()
 out2_file.close()
-
-#Create sample_soft data structure (dictionary for !sample properties)
-
-#Get age for y-label and numpy the beta values
-
-#Input the data into elasticnet
-
-#Get non-zero coefficients

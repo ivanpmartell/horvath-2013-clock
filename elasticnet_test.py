@@ -17,13 +17,13 @@ def inverseF(age):
         return (1. + adult_age)*age + adult_age
 
 y_list = []
-with open("valid.labels") as lbl_file:
+with open("data/training/GSE41826_male.labels") as lbl_file:
     for line in lbl_file:
         age, Fage = line.rstrip().split(',')
         y_list.append(age)
 
 id_dict = {}
-with open("methylation_ids.txt") as ids_file:
+with open("data/training/methylation_ids.txt") as ids_file:
     for line in ids_file:
         split_line = line.rstrip().split(',')
         id_val = int(split_line[1])
@@ -31,18 +31,18 @@ with open("methylation_ids.txt") as ids_file:
         id_dict[cpg_id] = id_val
 
 indices = []
-with open("important_variables.txt") as vars_file:
+with open("data/trained/important_sk_variables.txt") as vars_file:
     for line in vars_file:
-        variable = line.rstrip()
+        variable = line.rstrip().split(',')[0]
         indices.append(id_dict[variable])
 
 #y_valid = np.array(y_list, dtype=np.float)
-X_valid_norm = np.genfromtxt('valid.csv', delimiter=',')
+X_valid_norm = np.genfromtxt('data/training/GSE41826_male.csv', delimiter=',')
 X_valid_norm = X_valid_norm[:,indices]
 
-beta = np.load('enet_betas.npy')
+beta = np.load('data/trained/enet_sk_betas.npy')
 beta = beta[indices]
-intercept = np.load('enet_intercept.npy')
+intercept = np.load('data/trained/enet_sk_intercept.npy')
 #beta = np.load('enet_important_betas.npy')
 #beta = beta[indices]
 #intercept = np.load('enet__important_intercept.npy')

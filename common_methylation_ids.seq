@@ -35,6 +35,7 @@ for sample in get_first_file_in_directories(directory):
     get_ids(sample, curr_ids)
     if len(ids) != 0:
         ids = ids.intersection(curr_ids)
+        print(f"Current amount of ids: {len(ids)}")
     else:
         ids = curr_ids
 
@@ -43,6 +44,6 @@ for num, sid in enumerate(ids):
     id_dict[sid] = num
 
 
-with open("methylation_ids.txt", 'w') as methylids_file:
+with open("data/training/methylation_ids.txt", 'w') as methylids_file:
     for k, v in id_dict.items():
         methylids_file.write(f"{k},{v}\n")
