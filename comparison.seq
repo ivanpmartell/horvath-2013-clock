@@ -7,7 +7,7 @@ def inverseF(age: float):
     else:
         return (1. + adult_age)*age + adult_age
 
-with open("valid.labels") as lbl_file:
+with open("data/training/GSE42700_female.labels") as lbl_file:
     for line in lbl_file:
         age_str, Fage_str = line.rstrip().split(',')
         age = float(age_str)

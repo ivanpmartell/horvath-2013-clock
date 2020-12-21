@@ -1,0 +1,76 @@
+import sys
+import python
+
+pydef get_all_training_files_in_folder(directory) -> list[tuple[str, str]]:
+    import os
+    files = []
+    for item in os.listdir(directory):
+        item_path = os.path.join(directory, item)
+        if os.path.isfile(item_path):
+            if item.endswith(".csv"):
+                files.append((item_path, item_path[:-4] + ".labels"))
+    return files
+
+pydef training(directory, train_files, alpha, l1_ratio, max_iterations, tolerance):
+    import numpy as np
+    import os
+    def LARS_EN(X, y, alpha, tolerance, max_iterations):
+        n_samples, n_features = X.shape
+        #Might initialize with a normal dist
+        w_t = np.zeros(n_features)
+        rho = np.max(np.sum(np.abs(X.T @ X), axis=0))
+        threshold = n_samples * alpha / rho
+        for _ in range(max_iterations):
+            delta = y - X @ w_t
+            dl_dw = -X.T @ (delta) 
+            lw = w_t - dl_dw/rho
+            w_new = np.sign(lw) * np.maximum(np.abs(lw) - threshold, 0.0)
+            w_zero_threshold = np.sign(lw) * np.maximum(np.abs(lw) - 0, 0.0)
+            w_new[0] = w_zero_threshold[0]
+            mse = delta.dot(delta)/n_samples
+            print(mse)
+            #if (np.abs(w_new - w_t) < tolerance).all():
+            if mse < 1e-1:
+                print('Model has converged')
+                return w_new
+            w_t = w_new
+        print('Error converging')
+        return w_t
+    y_list = []
+    X_list = []
+    for csv_f, lbl_f in train_files:
+        with open(lbl_f) as lbl_file:
+            for line in lbl_file:
+                age, Fage = line.rstrip().split(',')
+                y_list.append(Fage)
+        with open(csv_f) as csv_file:
+            X = np.genfromtxt(csv_file, dtype=float, delimiter=',')
+            X_list.append(X)
+    X_train = np.concatenate(X_list)
+    #Add intercept
+    X = np.insert(X_train, 0, 1, axis=1)
+    y = np.array(y_list, dtype=np.float)
+    alpha_l1 = alpha * l1_ratio
+    alpha_l2 = alpha * (1 - l1_ratio)
+    d = X.shape[1]
+    c = np.power(1+alpha_l2, -0.5)
+    X_concat = np.sqrt(alpha_l2) * np.eye(d)
+    y_concat = np.zeros(d)
+    X_new = c * np.concatenate([X, X_concat], axis=0)
+    y_new = np.concatenate([y, y_concat], axis=0)
+    #Probabilistic Machine Learning book
+    coef = c * LARS_EN(X_new, y_new, c * alpha_l1, tolerance, max_iterations)
+    coef = coef.flatten()
+    np.save(os.path.join(directory, "enet_new_betas.npy"), coef[1:])
+    np.save(os.path.join(directory, "enet_new_intercept.npy"), coef[0])
+
+alpha = 0.02255706
+l1_ratio = 0.5
+max_iterations=1000
+tolerance=1e-6
+
+input_folder = sys.argv[1]
+save_folder = sys.argv[2]
+
+train_files = get_all_training_files_in_folder(input_folder)
+training(save_folder, train_files, alpha, l1_ratio, max_iterations, tolerance)
