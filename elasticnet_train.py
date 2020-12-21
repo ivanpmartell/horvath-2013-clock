@@ -11,9 +11,11 @@ def get_all_training_files_in_folder(directory):
         item_path = os.path.join(directory, item)
         if os.path.isfile(item_path):
             if item.endswith(".csv"):
-                if item.startswith("GSE4"):
                     files.append((item_path, item_path[:-4] + ".labels"))
     return files
+
+def StandardScaler(X):
+    return (X - np.mean(X, axis=0)) / np.std(X, axis=0)
 
 train_files = get_all_training_files_in_folder(input_folder)
 y_list = []
@@ -33,14 +35,15 @@ N = X_train.shape[0]
 D = X_train.shape[1]
 #Initialize the gradient descent and learning rate
 beta = np.random.randn(D) / np.sqrt(D)
-learning_rate = 0.000000001
+learning_rate = 0.0000001
 #L1 regularization term alpha
 l1 = 0.5
 #L2 regularization term lambda
 l2 = 0.02255706
 
 #TODO: Improve elasticnet training algo to do batches of 10
-for i in range(500000):
+X_train = StandardScaler(X_train)
+for i in range(50000):
     Yhat = X_train.dot(beta)
     delta = Yhat - y_train
     beta = beta - (learning_rate *(X_train.T.dot(delta) + l1*np.sign(beta) + l2*2*beta))
@@ -48,7 +51,7 @@ for i in range(500000):
     print(mse)
 intercept = np.sum(y_train - np.dot(X_train, beta))/N
 
-np.save('data/trained/enet_betas.npy', beta)
-np.save('data/trained/enet_intercept.npy', intercept)
+np.save('data/trained_all/enet_betas.npy', beta)
+np.save('data/trained_all/enet_intercept.npy', intercept)
 
 #print(str(sum(beta != 0)) + " Variables and Neglected " +  str(sum(beta == 0)) + " Variables")

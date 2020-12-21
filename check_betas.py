@@ -1,7 +1,7 @@
 import numpy as np
 
-beta = np.load('data/trained_female/enet_sk_betas.npy')
-intercept = np.load('data/trained_female/enet_sk_intercept.npy')
+beta = np.load('data/trained_male/enet_sk_betas.npy')
+intercept = np.load('data/trained_male/enet_sk_intercept.npy')
 
 beta_rounded = np.round_(beta, decimals=2)
 intercept_rounded = np.round_(intercept, decimals=2)
@@ -19,7 +19,7 @@ print(non_zeros)
 important_vars = {}
 max_beta = 0
 min_beta = 9999
-with open("data/trained_female/important_sk_variables.txt", 'w') as vars_file:
+with open("data/trained_male/important_sk_variables.txt", 'w') as vars_file:
     for i in range(len(non_zeros)):
         if beta[non_zeros[i]] < min_beta:
             min_beta = beta[non_zeros[i]]
@@ -28,7 +28,7 @@ with open("data/trained_female/important_sk_variables.txt", 'w') as vars_file:
         important_vars[inv_id_dict[non_zeros[i]]] = beta[non_zeros[i]]
         vars_file.write(f"{inv_id_dict[non_zeros[i]]},{beta_rounded[non_zeros[i]]}\n")
 
-with open("data/trained_female/important_sk_variables.bed", 'w') as important_file:
+with open("data/trained_male/important_sk_variables.bed", 'w') as important_file:
     important_file.write(f"chrom\tchromStart\tchromEnd\tname\tscore\tstrand\n")
     with open("data/cgids_to_locations.csv") as loc_file:
         #Ignore first line
@@ -41,5 +41,5 @@ with open("data/trained_female/important_sk_variables.bed", 'w') as important_fi
             except:
                 continue
 
-np.save('data/trained_female/enet_important_betas.npy', beta[non_zeros])
-np.save('data/trained_female/enet_important_intercept.npy', intercept)
+np.save('data/trained_male/enet_important_betas.npy', beta[non_zeros])
+np.save('data/trained_male/enet_important_intercept.npy', intercept)

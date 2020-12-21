@@ -1,5 +1,4 @@
-from sklearn.linear_model import ElasticNet
-from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import ElasticNetCV
 import sys
 import os
 import numpy as np
@@ -12,7 +11,7 @@ def get_all_training_files_in_folder(directory):
     for item in os.listdir(directory):
         item_path = os.path.join(directory, item)
         if os.path.isfile(item_path):
-            if item.endswith("_male.csv"):
+            if item.endswith(".csv"):
                 files.append((item_path, item_path[:-4] + ".labels"))
     return files
 
@@ -28,15 +27,15 @@ for csv_f, lbl_f in train_files:
         X = np.genfromtxt(csv_file, dtype=float, delimiter=',')
         X_list.append(X)
 X_train = np.concatenate(X_list)
-scaler = StandardScaler()
-X_train = scaler.fit_transform(X_train)
 y_train = np.array(y_list, dtype=np.float)
 
 
-regr = ElasticNet(random_state=0, alpha=0.5, l1_ratio=0.02255706, normalize=False,
-                    fit_intercept=True, max_iter=10000)
+regr = ElasticNetCV(cv=5, random_state=0, l1_ratio=[.1, .25, .5, .7, .9, .95, .99, 1])
 regr.fit(X_train, y_train)
 
-np.save('data/trained_male/enet_sk_betas.npy', regr.coef_)
-np.save('data/trained_male/enet_sk_intercept.npy', regr.intercept_)
-
+np.save('data/trained_all/enet_cv_betas.npy', regr.coef_)
+np.save('data/trained_all/enet_cv_intercept.npy', regr.intercept_)
+print(regr.alpha_)
+print(regr.l1_ratio_)
+print(regr.n_iter_)
+print(regr.mse_path_)
