@@ -1,0 +1,46 @@
+import sys
+import python
+
+pydef get_all_training_files_in_folder(directory) -> list[tuple[str, str]]:
+    import os
+    files = []
+    for item in os.listdir(directory):
+        item_path = os.path.join(directory, item)
+        if os.path.isfile(item_path):
+            if item.endswith(".csv"):
+                files.append((item_path, item_path[:-4] + ".labels"))
+    return files
+
+pydef training(directory, train_files, l1, l2):
+    import os
+    import numpy as np
+    from sklearn.linear_model import ElasticNet
+    from sklearn.preprocessing import StandardScaler
+    y_list = []
+    X_list = []
+    for csv_f, lbl_f in train_files:
+        with open(lbl_f) as lbl_file:
+            for line in lbl_file:
+                age, Fage = line.rstrip().split(',')
+                y_list.append(Fage)
+        with open(csv_f) as csv_file:
+            X = np.genfromtxt(csv_file, dtype=float, delimiter=',')
+            X_list.append(X)
+    X_train = np.concatenate(X_list)
+    scaler = StandardScaler()
+    X_train = scaler.fit_transform(X_train)
+    y_train = np.array(y_list, dtype=np.float)
+    regr = ElasticNet(random_state=0, alpha=l2, l1_ratio=l1, normalize=False,
+                        fit_intercept=True, max_iter=10000)
+    regr.fit(X_train, y_train)
+    np.save(os.path.join(directory, "enet_sk_betas.npy"), regr.coef_)
+    np.save(os.path.join(directory, "enet_sk_intercept.npy"), regr.intercept_)
+
+input_folder = sys.argv[1]
+save_folder = sys.argv[2]
+#L1 regularization term alpha
+l1 = 0.02255706
+#L2 regularization term lambda
+l2 = 0.5
+train_files = get_all_training_files_in_folder(input_folder)
+training(save_folder, train_files, l1, l2)

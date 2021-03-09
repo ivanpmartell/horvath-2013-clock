@@ -1,0 +1,70 @@
+import python
+import math
+import sys
+
+pydef testing_pred(adult_age, directory, id_dict)->list[float]:
+    from sklearn.linear_model import ElasticNet
+    from sklearn.preprocessing import StandardScaler
+    import numpy as np
+    import os
+    indices = []
+    with open(os.path.join(directory, "important_sk_variables.txt")) as vars_file:
+        for line in vars_file:
+            variable = line.rstrip().split(',')[0]
+            indices.append(id_dict[variable])
+    X_valid = np.genfromtxt('data/training/GSE42700_female.csv', delimiter=',')
+    #USE BELOW IF IMPORTANT betas and intercept are selected
+    #X_valid = X_valid[:,indices]
+    scaler = StandardScaler()
+    X_valid = scaler.fit_transform(X_valid)
+    #USE important betas and intercept if using above indices
+    beta = np.load(os.path.join(directory, "enet_sk_betas.npy"))
+    intercept = np.load(os.path.join(directory, "enet_sk_intercept.npy"))
+    regr = ElasticNet(random_state=0, alpha=0.5, l1_ratio=0.02255706, normalize=False,
+                    fit_intercept=True, max_iter=5000)
+    regr.coef_ = beta
+    regr.intercept_ = intercept
+    pred_valid = regr.predict(X_valid)
+    return pred_valid.tolist()
+
+pydef testing_metrics(y_list, y_hat):
+    import numpy as np
+    def median_absolute_difference(y, y_hat):
+        return np.median(np.abs(y-y_hat))
+    def mean_squared_error(y, y_hat):
+        delta = y_hat - y
+        return delta.dot(delta)/len(y)
+    y = np.array(y_list, dtype=np.float)
+    y_h = np.array(y_hat, dtype=np.float)
+    mad = median_absolute_difference(y, y_h)
+    print(f"MAD: {mad}")
+    mse = mean_squared_error(y, y_h)
+    print(f"MSE: {mse}")
+
+adult_age = 20 #Humans
+def inverseF(age):
+        if age < 0:
+            return (1. + adult_age)*math.exp(age) - 1.
+        else:
+            return (1. + adult_age)*age + adult_age
+directory = sys.argv[1]
+
+y_list = list[int]()
+with open("data/training/GSE42700_female.labels") as lbl_file:
+    for line in lbl_file:
+        age, Fage = line.rstrip().split(',')
+        y_list.append(int(age))
+id_dict = dict[str, int]()
+with open("data/training/methylation_ids.txt") as ids_file:
+    for line in ids_file:
+        split_line = line.rstrip().split(',')
+        id_val = int(split_line[1])
+        cpg_id = split_line[0]
+        id_dict[cpg_id] = id_val
+pred_valid = testing_pred(adult_age, directory, id_dict)
+y_hat = list[float]()
+for i in range(len(pred_valid)):
+    tmp = inverseF(pred_valid[i])
+    y_hat.append(tmp)
+    print(f"{tmp} - {y_list[i]}")
+testing_metrics(y_list, y_hat)
