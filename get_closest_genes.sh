@@ -1,1 +1,1 @@
-./bedtools closest -a repos/horvath-2013-clock/data/trained/important_sk_variables.bed -b repos/horvath-2013-clock/data/genes.bed -s -D b -iu -t first > repos/horvath-2013-clock/data/trained/important_sk_genes.bed
+./bedtools closest -a repos/horvath-2013-clock/data/trained_female/important_sk_variables.bed -b repos/horvath-2013-clock/data/genes.bed -s -D b -iu -t first > repos/horvath-2013-clock/data/trained_female/important_sk_genes.bed

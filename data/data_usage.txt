@@ -2,3 +2,18 @@ Testing:
 GSE38873
 Ignored:
 in extra folder
+GSE27317 maternal,gender
+Training:
+GSE20242 age,sex
+GSE25892 age,gender
+GSE26126 age,gender
+GSE32146 age,gender
+GSE32149 age,gender
+GSE34035 age,gender
+GSE36064 age(months),gender
+GSE36642 age(weeks),gender
+GSE37988 age,gender
+GSE40279 age,gender
+GSE41037 age,gender
+GSE41169 age,gender
+GSE41826 age,Sex

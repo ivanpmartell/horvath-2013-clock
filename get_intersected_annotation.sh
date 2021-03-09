@@ -1,0 +1,1 @@
+./bedtools intersect -a repos/horvath-2013-clock/data/trained_female/important_sk_variables.bed -b repos/horvath-2013-clock/data/refGeneExtent.hg19.bed -wb > repos/horvath-2013-clock/data/trained_female/important_sk_annotations.bed

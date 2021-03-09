@@ -34,7 +34,7 @@ with open("data/training/methylation_ids.txt") as ids_file:
         id_dict[cpg_id] = id_val
 
 indices = []
-with open("data/trained_all/important_sk_variables.txt") as vars_file:
+with open("data/trained_female/important_sk_variables.txt") as vars_file:
     for line in vars_file:
         variable = line.rstrip().split(',')[0]
         indices.append(id_dict[variable])
@@ -42,11 +42,11 @@ with open("data/trained_all/important_sk_variables.txt") as vars_file:
 #y_valid = np.array(y_list, dtype=np.float)
 X_valid = np.genfromtxt('data/testing/GSE38873.csv', delimiter=',')
 #USE BELOW IF IMPORTANT betas and intercept are selected
-#X_valid = X_valid[:,indices]
+X_valid = X_valid[:,indices]
 scaler = StandardScaler()
 X_valid = scaler.fit_transform(X_valid)
-beta = np.load('data/trained_male/enet_sk_betas.npy')
-intercept = np.load('data/trained_male/enet_sk_intercept.npy')
+beta = np.load('data/trained_female/enet_important_betas.npy')
+intercept = np.load('data/trained_female/enet_important_intercept.npy')
 
 
 regr = ElasticNet(random_state=0, alpha=0.5, l1_ratio=0.02255706, normalize=False,
@@ -61,7 +61,7 @@ for i in range(len(pred_valid)):
     y_hat.append(tmp)
     print(f"{tmp},{y_list[i]}")
 
-""" def median_absolute_difference(y, y_hat):
+def median_absolute_difference(y, y_hat):
     return np.median(np.abs(y-y_hat))
 
 def mean_squared_error(y, y_hat):
@@ -73,4 +73,4 @@ y_h = np.array(y_hat, dtype=np.float)
 mad = median_absolute_difference(y, y_h)
 print(f"MAD: {mad}")
 mse = mean_squared_error(y, y_h)
-print(f"MSE: {mse}") """
+print(f"MSE: {mse}")

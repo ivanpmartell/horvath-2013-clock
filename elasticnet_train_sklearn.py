@@ -12,7 +12,7 @@ def get_all_training_files_in_folder(directory):
     for item in os.listdir(directory):
         item_path = os.path.join(directory, item)
         if os.path.isfile(item_path):
-            if item.endswith("_male.csv"):
+            if item.endswith("_female.csv"):
                 files.append((item_path, item_path[:-4] + ".labels"))
     return files
 
@@ -37,6 +37,6 @@ regr = ElasticNet(random_state=0, alpha=0.5, l1_ratio=0.02255706, normalize=Fals
                     fit_intercept=True, max_iter=10000)
 regr.fit(X_train, y_train)
 
-np.save('data/trained_male/enet_sk_betas.npy', regr.coef_)
-np.save('data/trained_male/enet_sk_intercept.npy', regr.intercept_)
+np.save('data/trained_female/enet_sk_betas.npy', regr.coef_)
+np.save('data/trained_female/enet_sk_intercept.npy', regr.intercept_)
 
