@@ -89,7 +89,10 @@ class SampleSoft:
         gender = self.accessions[geo_accession]['characteristics_ch1']['gender'].lower()
         arr = [0.0 for i in range(len(id_dict))]
         for k, _ in id_dict.items():
-            arr[id_dict[k]] = float(self.accessions[geo_accession]['table'][k])
+            try:
+                arr[id_dict[k]] = float(self.accessions[geo_accession]['table'][k])
+            except ValueError:
+                arr[id_dict[k]] = 0.
         return arr, label, gender
 
 #print(soft.accessions['GSM989827']['table'])
