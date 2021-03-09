@@ -41,7 +41,7 @@ def _list_str(lst):
             y.append(",")
             y.append(str(lst[i]))
         y.append("\n")
-        return str.cat(y)
+        return ''.join(y)
 
 id_dict = dict()
 with open("data/training/methylation_ids.txt") as methylids_file:
