@@ -67,7 +67,7 @@ class SampleSoft:
                             raise ValueError()
                         except KeyError:
                             self.accessions[current_acc]['table_headers'] = {'value': line.strip()}
-                            self.accessions[current_acc]['table'] = dict[str, str]()
+                            self.accessions[current_acc]['table'] = dict()
                     else:
                         #Save table data
                         line_split = line.split('\t')

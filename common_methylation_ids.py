@@ -25,6 +25,15 @@ def get_first_file_in_directories(base_dir):
             files.append(file_path)
     return files
 
+def save_file(id_dict):
+    try:
+        with open("data/training/methylation_ids.txt", 'w') as methylids_file:
+            for k, v in id_dict.items():
+                methylids_file.write(f"{k},{v}\n")
+    except FileNotFoundError:
+        os.mkdir("data/training")
+        save_file(id_dict)
+
 directory = sys.argv[1]
 
 ids = set()
@@ -42,7 +51,3 @@ id_dict = dict()
 for num, sid in enumerate(ids):
     id_dict[sid] = num
 
-
-with open("data/training/methylation_ids.txt", 'w') as methylids_file:
-    for k, v in id_dict.items():
-        methylids_file.write(f"{k},{v}\n")
