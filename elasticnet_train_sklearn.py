@@ -16,6 +16,14 @@ def get_all_training_files_in_folder(directory):
                 files.append((item_path, item_path[:-4] + ".labels"))
     return files
 
+def save_file(regr)
+    try:
+        np.save('data/trained_female/enet_sk_betas.npy', regr.coef_)
+        np.save('data/trained_female/enet_sk_intercept.npy', regr.intercept_)
+    except FileNotFoundError:
+        os.mkdir("data/trained_female")
+        save_file(regr)
+
 train_files = get_all_training_files_in_folder(input_folder)
 y_list = []
 X_list = []
@@ -37,6 +45,4 @@ regr = ElasticNet(random_state=0, alpha=0.5, l1_ratio=0.02255706, normalize=Fals
                     fit_intercept=True, max_iter=10000)
 regr.fit(X_train, y_train)
 
-np.save('data/trained_female/enet_sk_betas.npy', regr.coef_)
-np.save('data/trained_female/enet_sk_intercept.npy', regr.intercept_)
-
+save_file(regr)
