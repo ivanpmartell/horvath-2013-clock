@@ -80,20 +80,17 @@ class SampleSoft:
                         self.accessions[current_acc]['table'][key] = value
                     table_line += 1
 
-    def get_data(self, id_dict, geo_accession):
+    def get_data(self, id_dict, geo_accession, char_of_interest):
         label = -1.
         try:
             label = float(self.accessions[geo_accession]['characteristics_ch1']['age'].split(' ')[0])
         except:
             print("WARNING: MISSING AGE")
-        gender = self.accessions[geo_accession]['characteristics_ch1']['gender'].lower()
+        char = self.accessions[geo_accession]['characteristics_ch1'][char_of_interest].lower()
         arr = [0.0 for i in range(len(id_dict))]
         for k, _ in id_dict.items():
             try:
                 arr[id_dict[k]] = float(self.accessions[geo_accession]['table'][k])
             except ValueError:
                 arr[id_dict[k]] = 0.
-        return arr, label, gender
-
-#print(soft.accessions['GSM989827']['table'])
-#print(soft.accessions['GSM989827']['characteristics_ch1']['age'])
+        return arr, label, char

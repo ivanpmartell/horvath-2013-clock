@@ -4,7 +4,8 @@ import sys
 import os
 import numpy as np
 
-#input_folder = sys.argv[1]
+char_of_interest = sys.argv[1]
+characteristic = sys.argv[2]
 input_folder = "data/training"
 
 def get_all_training_files_in_folder(directory):
@@ -12,16 +13,16 @@ def get_all_training_files_in_folder(directory):
     for item in os.listdir(directory):
         item_path = os.path.join(directory, item)
         if os.path.isfile(item_path):
-            if item.endswith("_female.csv"):
+            if item.endswith(f"_{char_of_interest}-{characteristic}.csv"):
                 files.append((item_path, item_path[:-4] + ".labels"))
     return files
 
 def save_file(regr)
     try:
-        np.save('data/trained_female/enet_sk_betas.npy', regr.coef_)
-        np.save('data/trained_female/enet_sk_intercept.npy', regr.intercept_)
+        np.save(f'data/trained_{characteristic}/enet_sk_betas.npy', regr.coef_)
+        np.save(f'data/trained_{characteristic}/enet_sk_intercept.npy', regr.intercept_)
     except FileNotFoundError:
-        os.mkdir("data/trained_female")
+        os.mkdir(f"data/trained_{characteristic}")
         save_file(regr)
 
 train_files = get_all_training_files_in_folder(input_folder)

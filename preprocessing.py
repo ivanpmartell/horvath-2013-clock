@@ -6,6 +6,10 @@ from soft import SampleSoft
 adult_age = 20 #Humans
 dir = sys.argv[1]
 geo_accession = sys.argv[2]
+methylation_ids_file = sys.argv[3]
+char_of_interest = sys.argv[4]
+# input in lowercase!
+char_1, char_2 = sys.argv[5].split(',')
 
 def get_all_files_in_directory(directory, accession):
     full_dir = os.path.join(directory, accession)
@@ -44,32 +48,33 @@ def _list_str(lst):
         return ''.join(y)
 
 id_dict = dict()
-with open("data/training/methylation_ids.txt") as methylids_file:
+with open(methylation_ids_file) as methylids_file:
+    next(methylids_file)
     for line in methylids_file:
-        cgid, arrid = line.rstrip().split(',')
+        arrid, cgid = line.rstrip().split(',')[0:2]
         id_dict[cgid] = int(arrid)
 
 #for geo_accession in get_all_folders_in_directory(dir):
-csv_file = open(f"data/training/{geo_accession}_male.csv", 'w')
-out_file = open(f"data/training/{geo_accession}_male.labels", 'w')
-csv2_file = open(f"data/training/{geo_accession}_female.csv", 'w')
-out2_file = open(f"data/training/{geo_accession}_female.labels", 'w')
+csv_file = open(f"data/training/{geo_accession}_{char_of_interest}-{char_1}.csv", 'w')
+out_file = open(f"data/training/{geo_accession}_{char_of_interest}-{char_1}.labels", 'w')
+csv2_file = open(f"data/training/{geo_accession}_{char_of_interest}-{char_2}.csv", 'w')
+out2_file = open(f"data/training/{geo_accession}_{char_of_interest}-{char_2}.labels", 'w')
 for sample in get_all_files_in_directory(dir, geo_accession):
     print(f"Processing file: {sample}")
     soft_data = SampleSoft()
     for s_acc in soft_data.load_file(sample):
-        data, age, gender = soft_data.get_data(id_dict, s_acc)
+        data, age, char = soft_data.get_data(id_dict, s_acc, char_of_interest)
         if age == -1:
             print("Skipping...")
             continue
-        if gender.lower().startswith('m'):
+        if char.lower() == char_1:
             out_file.write(f"{age},{F(age)}\n")
             csv_file.write(_list_str(data))
-        elif gender.lower().startswith('f'):
+        elif char.lower() == char_2:
             out2_file.write(f"{age},{F(age)}\n")
             csv2_file.write(_list_str(data))
         else:
-            print(f"WARNING: UNKNOWN GENDER {gender}")
+            print(f"WARNING: UNKNOWN CHARACTERISTIC {char}")
 csv_file.close()
 out_file.close()
 csv2_file.close()

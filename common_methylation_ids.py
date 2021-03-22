@@ -1,6 +1,8 @@
 import sys
 from soft import get_ids
 
+directory = sys.argv[1]
+
 #Use this function for a complete scan of all files (Very slow)
 def get_files_in_subdirectories(base_dir):
     import os
@@ -28,13 +30,12 @@ def get_first_file_in_directories(base_dir):
 def save_file(id_dict):
     try:
         with open("data/training/methylation_ids.txt", 'w') as methylids_file:
+            methylids_file.write("0,(Intercept)")
             for k, v in id_dict.items():
-                methylids_file.write(f"{k},{v}\n")
+                methylids_file.write(f"{v},{k}\n")
     except FileNotFoundError:
         os.mkdir("data/training")
         save_file(id_dict)
-
-directory = sys.argv[1]
 
 ids = set()
 for sample in get_first_file_in_directories(directory):

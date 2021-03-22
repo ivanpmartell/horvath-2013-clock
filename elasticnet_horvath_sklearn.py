@@ -4,8 +4,8 @@ import sys
 import os
 import numpy as np
 
-char_of_interest = sys.argv[1]
-input_folder = "data/training"
+input_file = sys.argv[1]
+input_file_labels = input_file[:-4] + ".labels"
 adult_age = 20 #Humans
 
 def median_absolute_difference(y, y_hat):
@@ -20,35 +20,26 @@ def inverseF(age):
 
 
 y_list = []
-with open("data/testing/GSE38873.labels") as lbl_file:
+with open(input_file_labels) as lbl_file:
     for line in lbl_file:
         age, Fage = line.rstrip().split(',')
         y_list.append(age)
 
-id_dict = {}
-with open("data/training/methylation_ids.txt") as ids_file:
-    next(ids_file)
+betas = []
+with open("data/horvath_cgs.txt") as ids_file:
+    intercept_line = next(ids_file)
+    intercept_num = float(intercept_line.split(',')[2])
+    intercept = np.array([intercept_num])
     for line in ids_file:
         split_line = line.rstrip().split(',')
-        id_val = int(split_line[0])
-        cpg_id = split_line[1]
-        id_dict[cpg_id] = id_val
-
-indices = []
-with open(f"data/trained_{char_of_interest}/important_sk_variables.txt") as vars_file:
-    for line in vars_file:
-        variable = line.rstrip().split(',')[0]
-        indices.append(id_dict[variable])
+        beta_num = float(split_line[2])
+        betas.append(beta_num)
+beta = np.array(betas)
 
 #y_valid = np.array(y_list, dtype=np.float)
-X_valid = np.genfromtxt('data/testing/GSE38873.csv', delimiter=',')
-#USE BELOW IF IMPORTANT betas and intercept are selected
-X_valid = X_valid[:,indices]
+X_valid = np.genfromtxt(input_file, delimiter=',')
 scaler = StandardScaler()
 X_valid = scaler.fit_transform(X_valid)
-beta = np.load(f'data/trained_{char_of_interest}/enet_important_betas.npy')
-intercept = np.load(f'data/trained_{char_of_interest}/enet_important_intercept.npy')
-
 
 regr = ElasticNet(random_state=0, alpha=0.5, l1_ratio=0.02255706, normalize=False,
                     fit_intercept=True, max_iter=5000)
